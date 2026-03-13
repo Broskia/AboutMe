@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maever_CSS/MAFIA</title>
+    <style>
+        body {
+            display: flex;
+            margin: 0;
+            height: 100vh;
+            background-color: black;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+        }
+        #pinkBackground {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('cutecore-bg.jpg') center center/cover no-repeat, linear-gradient(135deg, #ff9ff3, #f368e0, #ff6b9d);
+            z-index: 5;
+            transition: opacity 0.5s;
+        }
+        #enterButton {
+            font-size: 50px;
+            padding: 20px 40px;
+            background: linear-gradient(45deg, #ff9ff3, #f368e0);
+            color: white;
+            border: 3px solid #ff6b9d;
+            border-radius: 50px;
+            cursor: pointer;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            box-shadow: 0 8px 15px rgba(255, 107, 157, 0.4);
+            transition: all 0.3s ease;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+        }
+        #enterButton:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+            box-shadow: 0 12px 20px rgba(255, 107, 157, 0.6);
+        }
+        #console {
+            flex: 1;
+            height: 100vh;
+            background-color: black;
+            color: red;
+            font-family: monospace;
+            font-size: 16px;
+            padding: 20px;
+            box-sizing: border-box;
+            display: none;
+            overflow-y: auto;
+        }
+        #videoContainer {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        #myVideo {
+            max-width: 100%;
+            max-height: 70vh;
+            display: none;
+        }
+        #databaseUI {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 200px;
+            height: 150px;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: white;
+            font-family: monospace;
+            font-size: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        #databaseUI pre {
+            animation: searchScroll 3s linear infinite;
+        }
+        @keyframes searchScroll {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-100%); }
+        }
+        #relayText {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: yellow;
+            font-family: monospace;
+            font-size: 14px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            pointer-events: none;
+            max-width: 300px;
+        }
+        @keyframes zoomIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.2); opacity: 0; }
+        }
+        #underText {
+            color: red;
+            font-size: 24px;
+            margin-top: 20px;
+            display: none;
+        }
+        #databaseUI {
+            flex: 1;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: white;
+            font-family: monospace;
+            font-size: 10px;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        #databaseUI pre {
+            animation: searchScroll 3s linear infinite;
+        }
+    </style>
+</head>
+<body>
+    <div id="pinkBackground"></div>
+    <button id="enterButton" style="z-index:100;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);">Enter</button>
+    <div id="console"></div>
+    <div id="videoContainer">
+        <video id="myVideo" autoplay loop>
+            <source src="videos/RDT_20241108_224004.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <div id="relayText">
+            <p id="log1" style="display: none;">Initializing connection to CSS Mafia server...</p>
+            <p id="log2" style="display: none;">Authenticating with server...</p>
+            <p id="log3" style="display: none;">Sending data packet...</p>
+            <p id="log4" style="display: none;">Data relayed successfully to CSS Mafia server.</p>
+        </div>
+        <div id="underText">MAEVER</div>
+    </div>
+    <div id="databaseUI">
+        <pre id="dbContent" style="color: white; font-family: monospace; font-size: 10px; margin: 0;"></pre>
+    </div>
+    <script>
+        const commands = [
+            "ping 192.168.1.1",
+            "ls /home/user",
+            "cd /var/log",
+            "locate target",
+            "gps lat 40.7128 lon -74.0060",
+            "traceroute example.com",
+            "nmap -sP 192.168.1.0/24",
+            "ssh user@remote.host",
+            "wget http://data.com",
+            "curl -X GET api.endpoint",
+            "find / -name secret.txt",
+            "ps aux | grep process",
+            "netstat -tuln",
+            "ifconfig",
+            "route -n",
+            "dig example.com",
+            "whois domain.com",
+            "openssl rand -base64 32",
+            "tar -czf backup.tar.gz /data",
+            "chmod 755 script.sh"
+        ];
+
+        let currentCommandIndex = 0;
+        let charIndex = 0;
+        let typingSpeed = 1; // ms per character
+
+        function typeCommand() {
+            const consoleDiv = document.getElementById('console');
+            consoleDiv.textContent += commands[currentCommandIndex] + '\n';
+            currentCommandIndex = (currentCommandIndex + 1) % commands.length;
+            setTimeout(typeCommand, 100); // Delay before next command
+        }
+
+        document.getElementById('enterButton').addEventListener('click', function() {
+            this.style.display = 'none';
+            document.getElementById('pinkBackground').style.display = 'none';
+            document.getElementById('console').style.display = 'block';
+            document.getElementById('videoContainer').style.display = 'flex';
+            document.getElementById('databaseUI').style.display = 'flex';
+            document.getElementById('underText').style.display = 'block';
+            var video = document.getElementById('myVideo');
+            video.style.display = 'block';
+            video.play();
+            typeCommand(); // Start typing commands
+            showLogs(); // Start showing log messages
+        });
+
+        function showLogs() {
+            const logs = ['log1', 'log2', 'log3', 'log4'];
+            logs.forEach((id, index) => {
+                setTimeout(() => {
+                    document.getElementById(id).style.display = 'block';
+                }, index * 2000); // Show each log 2 seconds apart
+            });
+        }
+
+        function generateDBContent() {
+            let content = 'Searching databases...\nScanning all possible paths...\nInitializing network scan...\nChecking system integrity...\nAccessing root directory...\nScanning /etc/passwd...\nQuerying user database...\n';
+            document.getElementById('dbContent').textContent = content;
+            // Slow scroll initially
+            document.getElementById('dbContent').style.animationDuration = '10s';
+
+            setTimeout(() => {
+                // Fast scroll with long searching content
+                content = 'Searching databases...\n';
+                for (let i = 0; i < 1000; i++) {
+                    content += `Searching path /home/user${i}...\nScanning /var/log/file${i}...\nChecking /etc/config${i}...\nAccessing /root/data${i}...\nQuerying database table ${i}...\n`;
+                }
+                document.getElementById('dbContent').textContent = content;
+                document.getElementById('dbContent').style.animationDuration = '3s'; // Very fast
+            }, 3000);
+
+            setTimeout(() => {
+                // Show results
+                content = 'Search completed.\nResults: 1000 paths scanned.\nData extracted: User credentials, files, logs.\nSpreading to network nodes...\nLeaking data to external servers...\nInfecting connected devices...\nOperation successful.\n';
+                document.getElementById('dbContent').textContent = content;
+                document.getElementById('dbContent').style.animationDuration = '15s'; // Slow
+            }, 8000);
+        }
+
+        generateDBContent(); // Generate on load
+    </script>
+</body>
+</html>
